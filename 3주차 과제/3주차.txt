@@ -1,0 +1,447 @@
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+void print_map(vector<vector<int> > map)
+{
+	for (int i = 0; i < map.size(); i++)
+	{
+		for (int j = 0; j < map[0].size(); j++)
+			cout << map[i][j];
+		cout << '\n';
+	}
+	cout << '\n';
+}
+
+bool isRange(vector<vector<int> > map, int row, int col) {
+	if (row < 0 || row >= map.size() || col < 0 || col >= map[0].size() || map[row][col] == 1) return false;
+	else return (true);
+}
+
+bool	fill(vector<vector<int> >& map, int row, int col,int shape)
+{
+	if (shape == 0 && isRange(map, row, col) && isRange(map, row, col + 1) && isRange(map, row + 1, col + 1))
+	{
+		map[row][col] = 1, map[row][col + 1] = 1, map[row + 1][col + 1] = 1;
+		return (true);
+	}
+	else if (shape == 1 && isRange(map, row, col) && isRange(map, row + 1, col) && isRange(map, row + 1, col + 1))
+	{
+		map[row][col] = 1, map[row + 1][col] = 1, map[row + 1][col + 1] = 1;
+		return (true);
+	}
+	else if (shape == 2 && isRange(map, row, col) && isRange(map, row, col + 1) && isRange(map, row + 1, col))
+	{
+		map[row][col] = 1, map[row][col + 1] = 1, map[row + 1][col] = 1;
+		return (true);
+	}
+	else if (shape == 3 && isRange(map, row, col) && isRange(map, row + 1, col) && isRange(map, row + 1, col - 1))
+	{
+		map[row][col] = 1, map[row + 1][col] = 1, map[row + 1][col - 1] = 1;
+		return (true);
+	}
+	else
+		return (false);
+
+}
+
+int	check_next_blank(vector<vector<int> > map, int& row, int& col)
+{
+	for (int i = 0; i < map.size(); i++)
+	{
+		for (int j = 0; j < map[0].size(); j++)
+		{
+			if (map[i][j] == 0)
+			{
+				row = i;
+				col = j;
+				return (false);
+			}
+		}
+	}
+	return (true);
+}
+
+void	boardcover(vector<vector<int> > map, int& count, int row, int col, int shape)
+{
+	if (check_next_blank(map, row, col))
+	{
+		count++;
+		return ;
+	}
+	if (!fill(map, row, col, shape))
+			return ;
+	for (int i = 0; i < 4; i++)
+		boardcover(map, count, row, col, i);
+}
+
+int check_map(vector<vector<int> > map)
+{
+	int	count = 0;
+	for (size_t i = 0; i < map.size(); i++)
+		for (size_t j = 0; j < map[i].size(); j++)
+			if (map[i][j] == 0)
+				count++;
+	if (count % 3 == 0)
+		return (2);
+	else if (count == 0)
+		return (1);
+	else
+		return (0);
+}
+
+vector<vector<int> >	return_map(int H, int W)
+{
+	vector<vector<int> > map(H, vector<int>(W, 0));
+	char				c;
+
+	for (size_t i = 0; i < H; i++)
+		for (size_t j = 0; j < W; j++)
+		{
+			cin >> c;
+			if (c == '#')
+				map[i][j] = 1;
+			else
+				map[i][j] = 0;
+		}
+	return (map);
+}
+
+//생각 정리. 앞으로 나아가면서 모든 빈칸에 대해 성공하면 1 반환인 듯? 근데 하나라도 중간에 블럭을 놓는데 실패하면 이제 0 반환하는거지.
+//그럼 실패 종료 조건은 빈칸이 있는데 하나라도 들어가지 않을 경우 인거고, 성공의 경우는 끝까지 갔을 경우인 것 같은데?
+
+int	main()
+{
+	vector<vector<int> >	array_map;
+	int					T, H, W, goal, buf;
+	int					count;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		count = 0;
+		cin >> H;//행
+		cin >> W;//열
+		array_map = return_map(H, W);
+		buf = check_map(array_map);
+		if (!buf)
+		{
+			cout << "0\n";
+			continue ;
+		}
+		else if (buf == 1)
+		{
+			cout << "1-조기종료\n";//지워
+			continue ;
+		}
+		for (int i = 0; i < 4; i++)
+			boardcover(array_map, count, 0, 0, i);
+		cout << count / 4 << '\n';
+	}
+}
+
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+bool	can_sum(vector<int> array, int goal)
+{
+	if (goal == 0)
+		return (true);
+	else if (goal < 0)
+		return (false);
+	for (size_t i = 0; i < array.size(); i++)
+		if (can_sum(array, goal - array[i]))
+			return (true);
+	return (false);
+}
+
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array(len);
+
+	for (size_t i = 0; i < len; i++)
+		cin >> new_array[i];
+	return (new_array);
+}
+
+int	main()
+{
+	size_t		T, len;
+	int			goal;
+	vector<int> array;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		cin >> goal;
+		cin >> len;
+		array = input_array(len);
+		if (can_sum(array, goal))
+			cout << "true\n";
+		else
+			cout << "false\n";
+	}
+}
+
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+bool	can_sum(vector<int> array, vector<int> *result,int goal)
+{
+	if (goal == 0)
+		return (true);
+	else if (goal < 0)
+		return (false);
+	for (size_t i = 0; i < array.size(); i++)
+	{
+		if (can_sum(array, result ,goal - array[i]))
+		{
+			(*result).push_back(array[i]);
+			return (true);
+		}
+	}
+	return (false);
+}
+
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array(len);
+
+	for (size_t i = 0; i < len; i++)
+		cin >> new_array[i];
+	return (new_array);
+}
+
+int	main()
+{
+	size_t		T, len;
+	int			goal;
+	vector<int> array;
+	vector<int> result;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		cin >> goal;
+		cin >> len;
+		array = input_array(len);
+		if (can_sum(array, &result, goal))
+		{
+			cout << result.size() << ' ';
+			for (int i = result.size() - 1; 0 <= i; i--)
+				cout << result[i] << ' ';
+		}
+		else
+			cout << "-1";
+		cout << "\n";
+		result.clear();
+	}
+}
+
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+void	can_sum(vector<int> array, int *count, int goal)
+{
+	if (goal == 0)
+		(*count)++;
+	else if (goal < 0)
+		return ;
+	for (size_t i = 0; i < array.size(); i++)
+		can_sum(array, count ,goal - array[i]);
+}
+
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array(len);
+
+	for (size_t i = 0; i < len; i++)
+		cin >> new_array[i];
+	return (new_array);
+}
+
+int	main()
+{
+	size_t		T, len;
+	int			goal;
+	vector<int> array;
+	int			count;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		count = 0;
+		cin >> goal;
+		cin >> len;
+		array = input_array(len);
+		can_sum(array, &count, goal);
+		cout << count << '\n';
+	}
+}
+
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+int	acc(vector<int> array)
+{
+	int count = 0;
+
+	for (size_t i = 0; i < array.size(); i++)
+		count += array[i];
+	return (count);
+}
+
+void best_sum(vector<int> array, vector<int>& current, vector<int>& result, int goal, int index)
+{
+	int sum;
+
+	sum = acc(current);
+    if (sum == goal) {
+		if (result.empty() || result.size() > current.size())
+		{
+			result.clear();
+			for (size_t i = 0; i < current.size(); i++)
+				result.push_back(current[i]);
+		}
+        return;
+    }
+    if (sum < goal) {
+        for (int i = index; i < array.size(); ++i) {
+            current.push_back(array[i]);
+            best_sum(array, current, result, goal, i);
+            current.pop_back();
+        }
+    }
+}
+
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array(len);
+
+	for (size_t i = 0; i < len; i++)
+		cin >> new_array[i];
+	return (new_array);
+}
+
+int	main()
+{
+	size_t		T, len;
+	int			goal;
+	vector<int> array;
+	vector<int> result;
+	vector<int> current;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		cin >> goal;
+		cin >> len;
+		array = input_array(len);
+		best_sum(array, current, result, goal, 0);
+		if (!goal)
+		{
+			cout << "0\n";
+			current.clear();
+			result.clear();
+			continue ;
+		}
+		if (!result.empty())
+		{
+			cout << result.size() << ' ';
+			for (int i = result.size() - 1; 0 <= i; i--)
+				cout << result[i] << ' ';
+		}
+		else
+			cout << "-1";
+		cout << "\n";
+		current.clear();
+		result.clear();
+	}
+}
+
+#include <algorithm>
+#include <math.h>
+#include <iostream>
+
+using namespace std;
+
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array;
+	int			buf;
+	int			num[10] = {0, };
+
+	for (size_t i = 0; i < len; i++)
+	{
+		cin >> buf;
+		if (num[buf] < 3)
+		{
+			new_array.push_back(buf);
+			num[buf]++;
+		}
+	}
+	return (new_array);
+}
+
+void	print_array(vector<int> array)
+{
+	for (size_t i = 0; i < array.size(); i++)
+		if (array[i] >= 100)
+			cout << array[i] << " ";
+	cout << "\n";
+}
+
+void swap(int *a, int *b ){
+    int tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void permutation(int r, int depth, vector<int>& array, vector<int>& result){
+	if (r == depth)
+	{
+		int num = array[0] * 100 + array[1] * 10 + array[2];
+		if (num > 99 && num % 2 == 0)
+			result.push_back(array[0] * 100 + array[1] * 10 + array[2]);
+		return;
+	}
+	for (int i = depth; i < array.size(); i++){
+		swap(&array[i], &array[depth]);
+		permutation(r, depth + 1, array, result);
+		swap(&array[i], &array[depth]);
+	}
+}
+
+int	main()
+{
+	size_t		T, len;
+	vector<int>	array;
+	vector<int>	result;
+
+	cin >> T;
+	for (size_t i = 0; i < T; i++)
+	{
+		cin >> len;
+		array = input_array(len);
+		permutation(3, 0, array, result);
+		sort(result.begin(), result.end());
+		result.erase(unique(result.begin(),result.end()),result.end());
+		print_array(result);
+		result.clear();
+	}
+}

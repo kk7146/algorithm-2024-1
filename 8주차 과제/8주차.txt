@@ -1,0 +1,164 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+  
+struct Job
+{
+    int id;
+    int deadline;
+    int profit;
+};
+  
+bool comparison(Job a, Job b)
+{
+    if (a.profit == b.profit)
+        return a.id < b.id;
+    return a.profit > b.profit;
+}
+  
+void printJobScheduling(vector<Job> arr)
+{
+    int n = arr.size();
+    sort(arr.begin(), arr.end(), comparison);
+    vector<int> result(n);
+    vector<bool> slot(n, false);
+    for (int i=0; i < n; i++)
+        for (int j = arr[i].deadline - 1; j >= 0; j--)
+            if (!slot[j])
+            {
+                result[j] = i;
+                slot[j] = true;
+                break;
+            }
+    vector<int> sortedArr;
+    for (int i=0; i < n; i++)
+        if (slot[i])
+            sortedArr.push_back(arr[result[i]].id);
+    sort(sortedArr.begin(), sortedArr.end());
+    for (int i = 0; i < sortedArr.size(); i++)
+        cout << sortedArr[i] << ' ';
+    cout << endl;
+}
+  
+int main()
+{
+    int testcase;
+  
+    cin >> testcase;
+    for (int i = 0; i < testcase; i++)
+    {
+        int len;
+        cin >> len;
+        vector<Job> arr;
+        for (size_t i = 0; i < len; i++)
+        {
+            Job buf;
+            int a, b;
+            cin >> a;
+            cin >> b;
+            buf.id = i + 1;
+            buf.deadline = a;
+            buf.profit = b;
+            arr.push_back(buf);
+        }
+        printJobScheduling(arr);
+    }
+}
+
+
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+bool comparison(string a, string b) {
+    return a + b > b + a;
+}
+
+string return_Nums(bool& flag)
+{
+	string nums;
+	cin >> nums;
+	if (nums[0] != '0' || nums[1] != '\0')
+		flag = false;
+	return nums;
+}
+
+void print_num(vector<string> arr)
+{
+    int n = arr.size();
+	int count = 0;
+    sort(arr.begin(), arr.end(), comparison);
+	for (size_t i = 0; i < arr.size(); i++)
+		for (size_t j = 0; j < arr[i].size(); j++)
+			cout << arr[i][j];
+}
+
+int main()
+{
+	int testcase;
+
+	cin >> testcase;
+	for (int i = 0; i < testcase; i++)
+	{
+		int N;
+		bool flag = true;
+		cin >> N;
+		vector<string> arr;
+		for (size_t i = 0; i < N; i++)
+			arr.push_back(return_Nums(flag));
+		if (flag)
+		{
+			cout << '0' << endl;
+			continue;
+		}
+		print_num(arr);
+		cout << endl;
+	}
+}
+
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+int cal(vector<int> arr, int M)
+{
+    int n = arr.size();
+	int count = 0;
+    sort(arr.begin(), arr.end());
+    for (int i = 0; i < n; i++)
+	{
+		if (M >= arr[i])
+		{
+			M -= arr[i];
+            count += 1;
+		}
+        else
+            return (count);
+	}
+	return (count);
+}
+
+int main()
+{
+	int testcase;
+
+	cin >> testcase;
+	for (int i = 0; i < testcase; i++)
+	{
+		int M, N;
+		cin >> M;
+		cin >> N;
+		vector<int> arr;
+		for (size_t i = 0; i < N; i++)
+		{
+			int buf;
+			cin >> buf;
+			arr.push_back(buf);
+		}
+		cout << cal(arr, M) << endl;
+	}
+}

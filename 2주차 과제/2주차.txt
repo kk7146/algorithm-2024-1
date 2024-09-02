@@ -1,0 +1,259 @@
+#include <iostream>
+#include <algorithm>
+#include <limits>
+#include <vector>
+#include <math.h>
+
+using namespace	std;
+
+vector<int>	input_array(int len)
+{
+	vector<int> array(len);
+
+	for (int i = 0; i < len; i++)
+		cin >> array[i];
+	return (array);
+}
+ 
+int	longest_con_num(vector<int> array, int len)
+{
+	int			longest = 0;
+	vector<int> v_weight(1, 1);
+	vector<int> v_num(1, array[0]);
+	int			v_index = 0;
+
+	for (int i = 0; i < len - 1; i++)
+	{
+		if (array[i] == array[i + 1])
+			v_weight[v_index]++;
+		else
+		{
+			v_weight.push_back(1);
+			v_num.push_back(array[i + 1]);
+			v_index++;
+		}
+	}
+	len = v_weight.size();
+	for (int i = 0; i < len - 1; i++)
+		if (v_num.size() > 1 && abs(v_num[i] - v_num[i + 1]) == 1)
+			if (longest < v_weight[i] + v_weight[i + 1])
+				longest = v_weight[i] + v_weight[i + 1];
+	return (longest);
+}
+
+int	main()
+{
+	vector<int> array;
+	int	test_count;
+	int	len;
+
+	cin >> test_count;
+	for (int i = 0; i < test_count; i++)
+	{
+		cin >> len;
+		array = input_array(len);
+		sort(array.begin(), array.end());
+		cout << longest_con_num(array, len) << '\n';
+	}
+	return (0);
+}
+
+
+//공간 복잡도는 동적 할당 되는 메모리의 할당에서 결정된다. 
+//그렇기에 재귀를 통해서 동적으로 할당이 되는 배열의 깊이에 따라 달라지고
+//합병정렬의 재귀는 예시로 8이면 8 4 2 1 이렇게 log n 내려가고 따라서 공간 복잡도는 O(log n)과 비례한다.
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+void	merge(int **array, int left, int right, int len, int middle)
+{
+	int *temp;
+	int	left_index = left, right_index = middle + 1, temp_index = left;
+
+	temp = new int [len];
+	while (temp_index <= right)
+	{
+		if (left_index > middle)
+			temp[temp_index++] = (*array)[right_index++];
+		else if (right_index > right)
+			temp[temp_index++] = (*array)[left_index++];
+		else if ((*array)[left_index] <= (*array)[right_index])
+			temp[temp_index++] = (*array)[left_index++];
+		else
+			temp[temp_index++] = (*array)[right_index++];
+	}
+	for (int i = left; i <= right; i++)
+		(*array)[i] = temp[i];
+	delete [] temp;
+}
+
+void	merge_sort(int **array, int left, int right, int len)
+{
+	int	middle = (left + right) / 2;;
+
+	if (left < right)
+	{
+		middle = (left + right) / 2;
+		merge_sort(array, left, middle, len);
+		merge_sort(array, middle + 1, right, len);
+		merge(array, left, right, len, middle);
+	}
+}
+
+//void	check_leak(void)
+//{
+//	system("leaks a.out");
+//}
+
+void print_array(int* array, int len)
+{
+	for (int j = 0; j < len; j++)
+	{
+		cout << array[j];
+		if (j + 1 != len)
+			cout << " ";
+	}
+}
+
+int	*input_array(int len)
+{
+	int	*array = new int[len];
+
+	for (int j = 0; j < len; j++)
+		cin >> array[j];
+	return (array);
+}
+
+int	main()
+{
+	int	*array;
+	int	test_count;
+	int	len;
+
+	cin >> test_count;
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	for (int i = 0; i < test_count; i++)
+	{
+		cin >> len;
+		array = input_array(len);
+		merge_sort(&array , 0, len - 1, len);
+		print_array(array, len);
+		if (i + 1 != test_count)
+			cout << "\n";
+		delete [] array;
+	}
+	//atexit(check_leak);
+	return (1);
+}
+
+#include <iostream>
+#include <limits>
+
+using namespace std;
+
+void	merge(int **array, int left, int right, int len, int middle)
+{
+	int *temp;
+	int	left_index = left, right_index = middle + 1, temp_index = left;
+
+	temp = new int [len];
+	while (temp_index <= right)
+	{
+		if (left_index > middle)
+			temp[temp_index++] = (*array)[right_index++];
+		else if (right_index > right)
+			temp[temp_index++] = (*array)[left_index++];
+		else if ((*array)[left_index] <= (*array)[right_index])
+			temp[temp_index++] = (*array)[left_index++];
+		else
+			temp[temp_index++] = (*array)[right_index++];
+	}
+	for (int i = left; i <= right; i++)
+		(*array)[i] = temp[i];
+	delete [] temp;
+}
+
+void	insert_sort(int **array,int middle, int right)
+{
+	int	j,	key;
+
+	for(int i = 1; i < middle; i++)
+	{
+		key = (*array)[i];
+		for(j = i - 1; j >=0 && (*array)[j] > key; j--)
+			(*array)[j + 1] = (*array)[j];
+		(*array)[j + 1] = key;
+	}
+	for(int i = middle; i <= right; i++)
+	{
+		key = (*array)[i];
+		for(j = i - 1; j >=0 && (*array)[j] > key; j--)
+			(*array)[j + 1] = (*array)[j];
+		(*array)[j + 1] = key;
+	}
+}
+
+void	merge_sort(int **array, int left, int right, int len)
+{
+	int	middle = (left + right) / 2;
+	if (left < right)
+	{
+		middle = (left + right) / 2;
+		if (middle > 7)
+		{
+			merge_sort(array, left, middle, len);
+			merge_sort(array, middle + 1, right, len);
+		}
+		else
+			insert_sort(array, middle, right);
+		merge(array, left, right, len, middle);
+	}
+}
+
+//void	check_leak(void)
+//{
+//	system("leaks a.out");
+//}
+
+void print_array(int* array, int len)
+{
+	for (int j = 0; j < len; j++)
+	{
+		cout << array[j];
+		if (j + 1 != len)
+			cout << " ";
+	}
+}
+
+int	*input_array(int len)
+{
+	int	*array = new int[len];
+
+	for (int j = 0; j < len; j++)
+		cin >> array[j];
+	return (array);
+}
+
+int	main()
+{
+	int	*array;
+	int	test_count;
+	int	len;
+
+	cin >> test_count;
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	for (int i = 0; i < test_count; i++)
+	{
+		cin >> len;
+		array = input_array(len);
+		merge_sort(&array , 0, len - 1, len);
+		print_array(array, len);
+		if (i + 1 != test_count)
+			cout << "\n";
+		delete [] array;
+	}
+	//atexit(check_leak);
+	return (1);
+}

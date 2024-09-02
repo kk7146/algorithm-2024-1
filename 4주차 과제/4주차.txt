@@ -1,0 +1,188 @@
+#include <iostream>
+#include <vector>
+ 
+using namespace std;
+ 
+void    merge(vector<int>& array, int left, int right, int len, int middle, int& count)
+{
+    int *temp;
+    int left_index = left, right_index = middle + 1, temp_index = left;
+ 
+    temp = new int [len];
+    while (temp_index <= right)
+    {
+        if (left_index > middle)
+			temp[temp_index++] = array[right_index++];
+        else if (right_index > right)
+            temp[temp_index++] = array[left_index++];
+        else if (array[left_index] <= array[right_index])
+            temp[temp_index++] = array[left_index++];
+        else
+		{
+			count += middle - left_index + 1;
+			temp[temp_index++] = array[right_index++];
+		}
+    }
+    for (int i = left; i <= right; i++)
+        array[i] = temp[i];
+    delete [] temp;
+}
+ 
+void    merge_sort(vector<int>& array, int left, int right, int len, int& count)
+{
+    int middle = (left + right) / 2;;
+
+    if (left < right)
+    {
+        middle = (left + right) / 2;
+        merge_sort(array, left, middle, len, count);
+        merge_sort(array, middle + 1, right, len, count);
+        merge(array, left, right, len, middle, count);
+    }
+}
+ 
+vector<int>	input_array(size_t len)
+{
+	vector<int> new_array;
+	int			buf;
+
+	for (size_t i = 0; i < len; i++)
+	{
+		cin >> buf;
+		new_array.push_back(buf);
+	}
+	return (new_array);
+}
+ 
+
+int main()
+{
+    vector<int>	array;
+    int			test_count;
+    int			len;
+ 
+    cin >> test_count;
+    for (int i = 0; i < test_count; i++)
+    {
+		int	count = 0;
+
+        cin >> len;
+        array = input_array(len);
+        merge_sort(array , 0, len - 1, len, count);
+		cout << count << '\n';
+    }
+    return (1);
+}
+
+#include <vector>
+#include <stdio.h>
+#include <algorithm>
+#include <float.h>
+#include <stdlib.h>
+#include <math.h>
+
+using namespace std;
+
+struct Point{
+    int x, y;
+
+    bool operator < (const Point &b) const
+    {
+        if(x == b.x)
+            return y < b.y;
+        else
+            return x < b.x;
+    }
+};
+
+bool cmp(Point a, Point b){
+    return a.y < b.y;
+}
+
+float dist(Point p1, Point p2)
+{
+    return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+}
+
+float bruteForce(vector<Point> point,int start, int end)
+{
+    float m = -1;
+    for(int i = start; i <= end - 1; i++)
+        for(int j = i + 1; j <= end; j++)
+        {
+            float d = dist(point[i], point[j]);
+            if(m == -1 || m > d)
+                m = d;
+        }
+    if (m == -1)
+        return FLT_MAX;
+    else
+        return m;
+}
+
+float min(float x, float y)
+{
+    return (x < y)? x : y;
+}
+
+float minPoint(vector<Point> point, int size, float min)
+{
+    sort(point.begin(), point.end(), cmp);
+    for (int i = 0; i < size - 1; ++i)
+        for (int j = i + 1; j < size && point[j].y - point[i].y < min; ++j)
+            if (dist(point[i],point[j]) < min)
+                min = dist(point[i], point[j]);
+    return min;
+}
+
+float recur(vector<Point> point, int start, int end)
+{
+    if (end - start + 1 <= 3)
+        return bruteForce(point, start, end);
+    int mid = (start + end) / 2;
+    float left = recur(point, start, mid);
+    float right = recur(point, mid + 1, end);
+    float d = min(left, right);
+    vector<Point> inDist;
+    for (int i = start; i <= end; i++)
+        if (abs(point[i].x - point[mid].x) < d)
+            inDist.push_back(point[i]);
+    return min(d, minPoint(inDist, inDist.size(), d));
+}
+ 
+float closest(vector<Point> point, int size)
+{
+    sort(point.begin(), point.end());
+    return recur(point, 0, point.size() - 1);
+}
+
+vector<Point>   inputArray()
+{
+    vector<Point> point;
+    int num;
+    scanf("%d", &num);
+    for (size_t i = 0; i < num; i++)
+    {
+        Point   newPoint;
+        scanf("%d", &newPoint.x);
+        scanf("%d", &newPoint.y);
+        point.push_back(newPoint);
+    }
+    return (point);
+}
+
+int main()
+{
+    int testcase;
+    scanf("%d", &testcase);
+    for (int i = 0; i < testcase; i++)
+    {
+        vector<Point> p;
+        p = inputArray();
+        if (p.size() == 1)
+            printf("%.2f\n", 0);
+        else
+            printf("%.2f\n", closest(p, p.size() - 1));
+    }
+    return 0;
+}

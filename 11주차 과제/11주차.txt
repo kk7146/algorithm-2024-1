@@ -1,0 +1,133 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int needleman_wunsch(string X, string Y, int G, int M) {
+    int m = X.length();
+    int n = Y.length();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    for (int i = 1; i <= m; i++) 
+        dp[i][0] = i * G;
+    for (int j = 1; j <= n; j++) 
+        dp[0][j] = j * G;
+    for (int i = 1; i <= m; i++)
+        for (int j = 1; j <= n; j++) {
+            if (X[i - 1] == Y[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = min(dp[i - 1][j - 1] + M, min(dp[i - 1][j] + G, dp[i][j - 1] + G));
+            }
+        }
+    return dp[m][n];
+}
+
+int main() {
+    int T;
+    cin >> T;
+
+    while (T--) {
+        int G, M;
+        string X, Y;
+        cin >> G >> M >> X >> Y;
+        cout << needleman_wunsch(X, Y, G, M) << endl;
+    }
+    return 0;
+}
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+using namespace std;
+
+int memo[21][2001];
+
+int findWays(vector<int> &nums, int target, int idx, int sum)
+{
+	if (idx == nums.size())
+	{
+		if (sum == target)
+			return 1;
+		else
+			return 0;
+	}
+	if (memo[idx][sum + 1000] != -1)
+		return memo[idx][sum + 1000];
+	int add = findWays(nums, target, idx + 1, sum + nums[idx]);
+	int sub = findWays(nums, target, idx + 1, sum - nums[idx]);
+	return memo[idx][sum + 1000] = add + sub;
+}
+
+int main()
+{
+	int T;
+	cin >> T;
+
+	while (T--)
+	{
+		int target, N;
+		cin >> target >> N;
+
+		vector<int> nums(N);
+		for (int i = 0; i < N; i++)
+		{
+			cin >> nums[i];
+		}
+		memset(memo, -1, sizeof(memo));
+		int ways = findWays(nums, target, 0, 0);
+		cout << ways << endl;
+	}
+	return 0;
+}
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int INF = 1e7;
+void solve() {
+    int N, E;
+    cin >> N >> E;
+    vector<vector<int>> dist(N, vector<int>(N, INF));
+    for (int i = 0; i < N; ++i) dist[i][i] = 0;
+    for (int i = 0; i < E; ++i) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        dist[u][v] = w;
+    }
+    for (int k = 0; k < N; ++k)
+        for (int i = 0; i < N; ++i)
+            for (int j = 0; j < N; ++j)
+                if (dist[i][k] < INF && dist[k][j] < INF)
+                    dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);
+    for (int i = 0; i < N; ++i) {
+        if (dist[i][i] < 0) {
+            cout << "-1\n";
+            return;
+        }
+    }
+    int maxDist = -1, start = -1, end = -1;
+    for (int i = 0; i < N; ++i)
+        for (int j = 0; j < N; ++j)
+            if (dist[i][j] != INF && dist[i][j] > maxDist) {
+                start = i;
+                end = j;
+                maxDist = dist[i][j];
+            }
+    cout << start << " " << end << " " << maxDist << "\n";
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int T;
+    cin >> T;
+    while (T--) {
+        solve();
+    }
+    return 0;
+}
